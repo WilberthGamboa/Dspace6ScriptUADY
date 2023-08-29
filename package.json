@@ -1,0 +1,14 @@
+{
+  "name": "dspace6uploadscript",
+  "version": "1.0.0",
+  "description": "Script to upload exceldata to dspace6 repository",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WilberthGamboa",
+  "license": "ISC",
+  "dependencies": {
+    "exceljs": "^4.3.0"
+  }
+}
