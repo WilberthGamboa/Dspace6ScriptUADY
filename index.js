@@ -33,7 +33,7 @@ async function main() {
               
                 if (cell.value==='x') {
                   const cambiox = worksheet.getCell(2,collnumber).value;
-                  objetoConJSON.metadata.push({key:'example',value:cambiox})
+                  objetoConJSON.metadata.push({key:dspaceValue,value:cambiox})
                   
                   
                 } else {
@@ -45,9 +45,9 @@ async function main() {
                     richText.forEach(element => {
                       text = text + element.text
                     });
-                    objetoConJSON.metadata.push({key:'example',value:text.toString()})
+                    objetoConJSON.metadata.push({key:dspaceValue,value:text.toString()})
                   }else{
-                    objetoConJSON.metadata.push({key:'example',value:cell.value})
+                    objetoConJSON.metadata.push({key:dspaceValue,value:cell.value})
                   }
                  
                   
