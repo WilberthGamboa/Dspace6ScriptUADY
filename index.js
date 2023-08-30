@@ -11,20 +11,22 @@ async function main() {
    const worksheet= excel.getWorksheet('TABLA')
    let count = 0;
    const startingColumnIndex = 3;
-  worksheet.eachRow({ includeEmpty: false }, function(row, rowNumber) {
-    if (rowNumber===3) {
+  worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
+    if (rowNumber===4) {
         console.log(rowNumber)
         const x = Array.from(row.values);
-      
-    
         const nueva = x.map((element,index) => {
             if (element==='x') {
-              const celdaData= worksheet.getCell(2,index).value;
+              const celdaData= worksheet.getCell(1,index).value;
+              if (celdaData!=undefined) {
+                console.log(String(celdaData))
+              }
               return celdaData;
                 
             }
         });
-     console.log(nueva)
+        
+    
    
     }
    
