@@ -1,5 +1,6 @@
 // Analizando 
 import { categoryModel } from './src/models/category.model.js';
+const axios = require('axios');
 import exceljs from 'exceljs';
 import { excelCategory } from './src/models/excelCategory.model.js';
 const { Workbook } = exceljs;
@@ -106,7 +107,7 @@ async function main() {
   });
   console.log(objetoConJSON)
 }
-async function axios() {
+async function login() {
   const url = 'http://148.209.67.83/rest/login';
   const data = {
     email: 'dspace',
@@ -123,6 +124,6 @@ async function axios() {
   
 
 }
-await axios();
+login();
 //main()
  
