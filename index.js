@@ -1,6 +1,6 @@
 // Analizando 
 import { categoryModel } from './src/models/category.model.js';
-const axios = require('axios');
+import axios from 'axios';
 import exceljs from 'exceljs';
 import { excelCategory } from './src/models/excelCategory.model.js';
 const { Workbook } = exceljs;
