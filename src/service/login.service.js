@@ -10,7 +10,7 @@ export class LoginService {
     }
 
 
-    async loginDspace(){
+     loginDspace = async () => {
         try {
             console.log(colors.green(`Inicando login en ${this.url}`))
             const response = await axios.post(url, `email=${this.data.email}&password=${this.data.password}`);
