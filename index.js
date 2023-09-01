@@ -106,6 +106,23 @@ async function main() {
   });
   console.log(objetoConJSON)
 }
-+
-main()
+async function axios() {
+  const url = 'http://148.209.67.83/rest/login';
+  const data = {
+    email: 'dspace',
+    password: 'dspace'
+  };
+
+  try {
+    const response = await axios.post(url, `email=${data.email}&password=${data.password}`);
+    console.log('Respuesta del servidor:', response.data);
+    console.log('Cookies:', response.headers['set-cookie']); // JSESSIONID cookie
+  } catch (error) {
+    console.error('Error en la solicitud:', error);
+  }
+  
+
+}
+await axios();
+//main()
  
