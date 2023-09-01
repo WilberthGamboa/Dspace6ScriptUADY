@@ -7,7 +7,7 @@ export class LoginController {
     }
 
     async loginController(){
-       await this.loginService.loginDspace();
+      return await this.loginService.loginDspace();
     }
 
 
