@@ -110,7 +110,7 @@ async function main() {
 async function login() {
   const url = 'http://148.209.67.83:8080/rest/login';
   const data = {
-    email: 'dspace',
+    email: 'dspace@localhost',
     password: 'dspace'
   };
 
