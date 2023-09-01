@@ -1,12 +1,13 @@
-import { LoginService } from "../service/login.service";
+import { LoginService } from "../service/login.service.js";
+
 
 export class LoginController {
     constructor(){
         this.loginService = new LoginService();
     }
 
-    loginController(){
-        this.loginService.loginDspace();
+    async loginController(){
+       await this.loginService.loginDspace();
     }
 
 

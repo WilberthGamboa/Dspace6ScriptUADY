@@ -1,4 +1,4 @@
-import * as colors from 'colors';
+import colors from 'colors'; // Import colors package
 import axios from 'axios';
 export class LoginService {
     constructor() {
@@ -12,8 +12,8 @@ export class LoginService {
 
      loginDspace = async () => {
         try {
-            console.log(colors.green(`Inicando login en ${this.url}`))
-            const response = await axios.post(url, `email=${this.data.email}&password=${this.data.password}`);
+            console.log(colors.yellow(`Inicando login en ${this.url}`))
+            const response = await axios.post(this.url, `email=${this.data.email}&password=${this.data.password}`);
             //console.log('Respuesta del servidor:', response.data);
             console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
             return response.headers['set-cookie'];
