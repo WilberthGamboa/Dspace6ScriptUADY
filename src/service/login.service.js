@@ -1,4 +1,5 @@
-import * as colors from 'colors'
+import * as colors from 'colors';
+import axios from 'axios';
 export class LoginService {
     constructor() {
          this.url = 'http://148.209.67.83:8080/rest/login';
