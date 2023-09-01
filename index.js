@@ -3,6 +3,7 @@ import { categoryModel } from './src/models/category.model.js';
 import axios from 'axios';
 import exceljs from 'exceljs';
 import { excelCategory } from './src/models/excelCategory.model.js';
+import { LoginController } from './src/controllers/login.controller.js';
 const { Workbook } = exceljs;
 excelCategory
 let objetoConJSON = {
@@ -11,7 +12,7 @@ let objetoConJSON = {
   ]
 };
 //const ExcelJS = require('exceljs');
-async function main() {
+async function main(cookie) {
 
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile('datosexcel.xlsx');
@@ -108,22 +109,14 @@ async function main() {
   console.log(objetoConJSON)
 }
 async function login() {
-  const url = 'http://148.209.67.83:8080/rest/login';
-  const data = {
-    email: 'dspace@localhost',
-    password: 'dspace'
-  };
-
-  try {
-    const response = await axios.post(url, `email=${data.email}&password=${data.password}`);
-    console.log('Respuesta del servidor:', response.data);
-    console.log('Cookies:', response.headers['set-cookie']); // JSESSIONID cookie
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-  }
+  const loginController = new LoginController()
+  loginController.loginController();
+ 
   
 
 }
 login();
-//main()
- 
+/*
+const cookie = await login();
+main(cookie)
+*/ 
