@@ -7,7 +7,7 @@ export class ImportController{
 
     importController(){
        // this.importService.excelToDspace();
-       this.importService.uploadItems();
+       this.importService.excelToDspace();
     }
 
 }
