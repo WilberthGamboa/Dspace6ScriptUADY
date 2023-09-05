@@ -19,8 +19,8 @@ export class ImportService {
       'Cookie': x
     };
     // console.log(x)
-   // const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
-    //  console.log(response)
+    const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
+      console.log(response)
 
   }
 

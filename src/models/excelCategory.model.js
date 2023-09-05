@@ -1,7 +1,15 @@
 const prefixArq = 'arq.';
-const prefixDc = 'dc';
+const prefixDc = 'dc.';
+/*
 
+ addRegularData( 'dc.creator', $Row[9] );
+                addRegularData( 'dc.title', $Row[0] );
+                addRegularData( 'dc.date', $dspaceDate );
+                */
 export const excelCategory = {
+   // dcCreator:{ excel: 'Nombre', dspace: `${prefixDc}creator` },
+    dcTitle:{ excel: 'Nombre', dspace: `${prefixDc}title` },
+    dcDate:{ sistema: 'DUMMY EXCEL', dspace: `${prefixDc}date` },
     nombre: { excel: 'Nombre', dspace: `${prefixArq}Nombre` }, // ✅
     direccion: {excel:'Dirección',dspace:`${prefixArq}Direccion`}, // ✅
     pertence: {excel:'Pertenece a',dspace:`${prefixArq}Pertenencia`},// ✅
