@@ -11,21 +11,25 @@ export class ImportService {
     this.filePath = 'datosexcel.xlsx';
     this.tableName = 'TABLA';
   }
-//
+  //
   async uploadItems(metadata, idCollection, sessionid) {
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-    // console.log(x)
-    const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
-      console.log(response)
+
+ try {
+  const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
+  console.log(response.status)
+ } catch (error) {
+  //console.log(error)
+ }
 
   }
 
   excelToDspace = async () => {
-    
+
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile('datosexcel.xlsx');
@@ -34,17 +38,18 @@ export class ImportService {
     const loginController = new LoginController();
     const sesionCookie = await loginController.loginController();
 
-    // Obtener los nombre
-    let idCollection
-    let estadoExcel;
-    let coleccionExcel;
-    const colback = this.uploadItems;
+   
+    const uploadItems = this.uploadItems;
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
     worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-      
+       // Obtener los nombre
+    
 
       // el rowNumber es tal cual el número de fila en el excel
       if (rowNumber > 2) {
+    let idCollection
+    let estadoExcel;
+    let coleccionExcel;
         // Objeto el cual se crea para mandar al servidor
         let objetoConJSON = {
           metadata: [
@@ -59,25 +64,29 @@ export class ImportService {
         */
         row.eachCell((cell, collnumber) => {
 
+          // Obtenemos el título de la celda actual 
           const titleWorksheet = worksheet.getCell(1, collnumber).value;
 
+          // Iteramos el objeto de categorias, para obtener cada objeto del mapeo
           for (const key in excelCategory) {
-
             if (excelCategory.hasOwnProperty(key)) {
-              const excelValue = excelCategory[key].excel;
-              const dspaceValue = excelCategory[key].dspace;
-
+              const categoriaActual = excelCategory[key];
+              const excelValue = categoriaActual.excel;
+              const dspaceValue = categoriaActual.dspace;
+              let excelValuesToDspace;
+              // Vemos si el titulo de la celda coincide con el mapeo
               if (titleWorksheet === excelValue) {
-
+                /*
+                Dado que en los valores de las celdas del excel en vez de venir el valor de que deseamos
+                este viene marcado por una X por lo que requerimos obtener el valor de los títulos
+                */
                 if (cell.value === 'x') {
-                  const cambiox = worksheet.getCell(2, collnumber).value;
-                  objetoConJSON.metadata.push({ key: dspaceValue, value: cambiox })
-                  // Guardamos la categoria
-                  if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
-                    coleccionExcel = worksheet.getCell(2, collnumber).value;
-                  }
-
+                  const clasificacion = worksheet.getCell(2, collnumber).value;
+                  objetoConJSON.metadata.push({ key: dspaceValue, value: clasificacion })
                 } else {
+                  /*En este caso solamente se agrega el valor al objeto, verificando casos especiales
+                  para texto el cual tiene un formato especial 
+                  */
                   if (cell.value.richText) {
                     const richText = cell.value.richText
                     let text = '';
@@ -88,30 +97,35 @@ export class ImportService {
                   } else {
                     objetoConJSON.metadata.push({ key: dspaceValue, value: cell.value })
                   }
-
-
                 }
                 //Obtenemos el estado de la categoria 
                 if (worksheet.getCell(1, collnumber).value === 'Entidad') {
                   estadoExcel = cell.value;
                 }
 
-
-                // console.log(`Clave: ${key}, Valor Excel: ${excelValue}, Valor DSpace: ${dspaceValue}`);
               }
             }
           }
+          // Guardamos la categoria correspondiente a esta fila
+          if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
+            coleccionExcel = worksheet.getCell(2, collnumber).value;
+            
+          }
         })
-        // Aqui se debe llamar a la función encargada de subir los files las ROW a dspace
-
+       
         for (const key in collectionId) {
           if (Object.hasOwnProperty.call(collectionId, key)) {
             const element = collectionId[key];
             const { nombreExcel } = element
+            //console.log(estadoExcel);
+          // console.log(nombreExcel+ '---'+ estadoExcel)
+         //  console.log(estadoExcel === nombreExcel)
             if (estadoExcel === nombreExcel) {
-              const { categorias } = element
+              const { categorias } = element;
               categorias.forEach(element => {
+                //console.log(element.itemExcelName+ '---'+ coleccionExcel)
                 if (element.itemExcelName === coleccionExcel) {
+                  //console.log(idCollection)
                   idCollection = element.idDspace;
                 }
               });
@@ -120,9 +134,12 @@ export class ImportService {
 
           }
         }
-        colback(objetoConJSON,idCollection,sesionCookie)
+        if (idCollection) {
+          uploadItems(objetoConJSON,idCollection,sesionCookie)
+        }
+       
       }
-     
+
     });
 
     //  return objetoConJSON;

@@ -18,7 +18,7 @@ export class LoginService {
             console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
             return response.headers['set-cookie'];
           } catch (error) {
-            console.error(colors.red('Error en la solicitud:', error));
+           // console.error(colors.red('Error en la solicitud:', error));
           }
     }
 
