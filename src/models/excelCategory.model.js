@@ -10,6 +10,7 @@ export const excelCategory = {
    // dcCreator:{ excel: 'Nombre', dspace: `${prefixDc}creator` },
     dcTitle:{ excel: 'Nombre', dspace: `${prefixDc}title` },
     dcDate:{ sistema: 'DUMMY EXCEL', dspace: `${prefixDc}date` },
+    dcCreator:{ excel: 'Entidad', dspace: `${prefixDc}creator` },
     nombre: { excel: 'Nombre', dspace: `${prefixArq}Nombre` }, // ✅
     direccion: {excel:'Dirección',dspace:`${prefixArq}Direccion`}, // ✅
     pertence: {excel:'Pertenece a',dspace:`${prefixArq}Pertenencia`},// ✅
