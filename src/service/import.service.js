@@ -18,7 +18,7 @@ export class ImportService {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-    // console.log(x)
+
  try {
   const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
   console.log(response.status)
