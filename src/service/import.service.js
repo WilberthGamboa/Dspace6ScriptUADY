@@ -4,12 +4,13 @@ import exceljs from 'exceljs';
 import { excelCategory } from '../models/excelCategory.model.js';
 import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
-
 const { Workbook } = exceljs;
+import 'dotenv/config';
 export class ImportService {
   constructor() {
-    this.filePath = 'datosexcel.xlsx';
-    this.tableName = 'TABLA';
+    this.filePath = process.env.EXCEL_NAME;
+    this.tableName = process.env.EXCEL_TABLE_NAME;
+    this.serverURL = process.env.URLSERVIDOR
   }
   //
   async uploadItems(metadata, idCollection, sessionid) {
@@ -19,12 +20,12 @@ export class ImportService {
       'Cookie': x
     };
 
- try {
-  const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
-  console.log(response.status)
- } catch (error) {
-  //console.log(error)
- }
+    try {
+      const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+      console.log(response.status)
+    } catch (error) {
+      //console.log(error)
+    }
 
   }
 
@@ -32,24 +33,28 @@ export class ImportService {
 
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
-    const excel = await workbook.xlsx.readFile('datosexcel.xlsx');
-    const worksheet = excel.getWorksheet('TABLA')
+    const excel = await workbook.xlsx.readFile(this.filePath);
+    const worksheet = excel.getWorksheet(this.tableName)
     //Se llama al funcion para el idsession
     const loginController = new LoginController();
-    const sesionCookie = await loginController.loginController();
+    // const sesionCookie = await loginController.loginController();
 
-   
+
     const uploadItems = this.uploadItems;
+
+    console.log(colors.yellow('Inicando subida información'));
+    const tiempoInicio = process.hrtime();
+
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
     worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-       // Obtener los nombre
-    
+      // Obtener los nombre
+
 
       // el rowNumber es tal cual el número de fila en el excel
       if (rowNumber > 2) {
-    let idCollection
-    let estadoExcel;
-    let coleccionExcel;
+        let idCollection
+        let estadoExcel;
+        let coleccionExcel;
         // Objeto el cual se crea para mandar al servidor
         let objetoConJSON = {
           metadata: [
@@ -109,17 +114,17 @@ export class ImportService {
           // Guardamos la categoria correspondiente a esta fila
           if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
             coleccionExcel = worksheet.getCell(2, collnumber).value;
-            
+
           }
         })
-       
+
         for (const key in collectionId) {
           if (Object.hasOwnProperty.call(collectionId, key)) {
             const element = collectionId[key];
             const { nombreExcel } = element
             //console.log(estadoExcel);
-          // console.log(nombreExcel+ '---'+ estadoExcel)
-         //  console.log(estadoExcel === nombreExcel)
+            // console.log(nombreExcel+ '---'+ estadoExcel)
+            //  console.log(estadoExcel === nombreExcel)
             if (estadoExcel === nombreExcel) {
               const { categorias } = element;
               categorias.forEach(element => {
@@ -134,14 +139,21 @@ export class ImportService {
 
           }
         }
-        if (idCollection) {
-          uploadItems(objetoConJSON,idCollection,sesionCookie)
+        if (objetoConJSON.metadata.length != 0) {
+          //  uploadItems(objetoConJSON,idCollection,sesionCookie)
+
         }
-       
+
       }
 
     });
+    // Obtener el tiempo de finalización
+    const tiempoFin = process.hrtime(tiempoInicio);
 
+    // Calcular la duración en segundos
+    const duracionEnNanosegundos = tiempoFin[0] * 1e9 + tiempoFin[1];
+    const duracionEnSegundos = duracionEnNanosegundos / 1e9;
+    console.log(colors.green('Finalizado en: ' + duracionEnSegundos + ' segundos'))
     //  return objetoConJSON;
   }
 
