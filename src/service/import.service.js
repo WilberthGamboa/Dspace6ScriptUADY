@@ -22,22 +22,21 @@ export class ImportService {
 
     try {
       const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-      console.log(response.status)
+      
     } catch (error) {
       //console.log(error)
     }
 
   }
 
-  excelToDspace = async () => {
+  excelToDspace = async (sesionCookie) => {
 
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile(this.filePath);
     const worksheet = excel.getWorksheet(this.tableName)
     //Se llama al funcion para el idsession
-    const loginController = new LoginController();
-    // const sesionCookie = await loginController.loginController();
+  
 
 
     const uploadItems = this.uploadItems;
