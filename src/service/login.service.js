@@ -16,7 +16,7 @@ export class LoginService {
             console.log(colors.yellow(`Inicando login en ${this.url}`))
             const response = await axios.post(this.url, `email=${this.data.email}&password=${this.data.password}`);
             //console.log('Respuesta del servidor:', response.data);
-            //     console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
+                 console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
             return response.headers['set-cookie'];
           } catch (error) {
             console.log(colors.red('No se pudo iniciar sesión en el servidor:'))

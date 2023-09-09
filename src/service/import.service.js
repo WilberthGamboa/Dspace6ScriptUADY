@@ -22,7 +22,7 @@ export class ImportService {
 
     try {
       const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-      
+      console.log(response.status)
     } catch (error) {
       //console.log(error)
     }
@@ -45,7 +45,7 @@ export class ImportService {
     const tiempoInicio = process.hrtime();
 
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
-    worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+    worksheet.eachRow({ includeEmpty: false }, async function (row, rowNumber) {
       // Obtener los nombre
 
 
@@ -138,10 +138,10 @@ export class ImportService {
 
           }
         }
-        if (objetoConJSON.metadata.length != 0) {
-          //  uploadItems(objetoConJSON,idCollection,sesionCookie)
+        //console.log(objetoConJSON)
+          await uploadItems(objetoConJSON,idCollection,sesionCookie)
 
-        }
+        
 
       }
 

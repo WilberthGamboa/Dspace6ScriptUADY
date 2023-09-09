@@ -9,12 +9,12 @@ async function main() {
  try {
     const loginController = new LoginController();
     const sesionCookie = await loginController.loginController();
-        /*
+        
         const importController = new ImportController();
         importController.importController(sesionCookie);
-        */
-       const deleteService = new DeleteService();
-       deleteService.deleteItems();
+        
+      // const deleteService = new DeleteService();
+      // deleteService.deleteItem(sesionCookie);
        
  
     
