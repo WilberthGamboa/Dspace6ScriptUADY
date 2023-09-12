@@ -10,19 +10,20 @@ export class ImportService {
   constructor() {
     this.filePath = process.env.EXCEL_NAME;
     this.tableName = process.env.EXCEL_TABLE_NAME;
-    this.serverURL = process.env.URLSERVIDOR
+    this.serverURL = process.env.URLSERVIDOR;
   }
   //
-  async uploadItems(metadata, idCollection, sessionid) {
+   uploadItems = async(metadata, idCollection, sessionid) => {
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-
+    
  try {
-  const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
-  console.log(response.status)
+  
+  //const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+  //console.log(response.status)
  } catch (error) {
   //console.log(error)
  }
