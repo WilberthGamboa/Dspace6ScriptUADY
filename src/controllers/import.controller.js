@@ -5,9 +5,9 @@ export class ImportController{
         this.importService = new ImportService();
     }
 
-    importController(sessionCookie){
+    async importController(sessionCookie){
     
-       this.importService.excelToDspace(sessionCookie);
+       await this.importService.excelToDspace(sessionCookie);
     }
 
 }

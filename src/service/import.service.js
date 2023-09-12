@@ -20,15 +20,14 @@ export class ImportService {
       'Cookie': x
     };
 
-    try {
-      const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-      console.log(response.status)
-    } catch (error) {
-      //console.log(error)
-    }
+ try {
+  const response = await axios.post(`http://148.209.67.83:8080/rest/collections/${idCollection}/items`, metadata, { headers });
+  console.log(response.status)
+ } catch (error) {
+  //console.log(error)
+ }
 
   }
-
   excelToDspace = async (sesionCookie) => {
 
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
@@ -42,10 +41,10 @@ export class ImportService {
     const uploadItems = this.uploadItems;
 
     console.log(colors.yellow('Inicando subida información'));
-    const tiempoInicio = process.hrtime();
+    //const tiempoInicio = process.hrtime();
 
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
-    worksheet.eachRow({ includeEmpty: false }, async function (row, rowNumber) {
+    worksheet.eachRow({ includeEmpty: false },  async function (row, rowNumber) {
       // Obtener los nombre
 
 
@@ -137,9 +136,11 @@ export class ImportService {
             }
 
           }
+          if (idCollection) {
+            uploadItems(objetoConJSON,idCollection,sesionCookie)
+          }
         }
-        //console.log(objetoConJSON)
-          await uploadItems(objetoConJSON,idCollection,sesionCookie)
+
 
         
 
@@ -147,12 +148,12 @@ export class ImportService {
 
     });
     // Obtener el tiempo de finalización
-    const tiempoFin = process.hrtime(tiempoInicio);
+   // const tiempoFin = process.hrtime(tiempoInicio);
 
     // Calcular la duración en segundos
-    const duracionEnNanosegundos = tiempoFin[0] * 1e9 + tiempoFin[1];
-    const duracionEnSegundos = duracionEnNanosegundos / 1e9;
-    console.log(colors.green('Finalizado en: ' + duracionEnSegundos + ' segundos'))
+    //const duracionEnNanosegundos = tiempoFin[0] * 1e9 + tiempoFin[1];
+    //const duracionEnSegundos = duracionEnNanosegundos / 1e9;
+    //console.log(colors.green('Finalizado en: ' + duracionEnSegundos + ' segundos'))
     //  return objetoConJSON;
   }
 

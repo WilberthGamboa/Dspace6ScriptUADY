@@ -11,10 +11,10 @@ async function main() {
     const sesionCookie = await loginController.loginController();
         
         const importController = new ImportController();
-        importController.importController(sesionCookie);
-        
-      // const deleteService = new DeleteService();
-      // deleteService.deleteItem(sesionCookie);
+        //importController.importController(sesionCookie);
+        //
+       const deleteService = new DeleteService();
+      //deleteService.deleteItem(sesionCookie);
        
  
     
