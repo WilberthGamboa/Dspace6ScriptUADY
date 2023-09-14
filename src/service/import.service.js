@@ -22,7 +22,7 @@ export class ImportService {
     
  try {
   
-  //const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+  const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
   //console.log(response.status)
  } catch (error) {
   //console.log(error)
@@ -137,7 +137,7 @@ export class ImportService {
             }
 
           }
-          if (idCollection) {
+          if (objetoConJSON.metadata.length!=0) {
             uploadItems(objetoConJSON,idCollection,sesionCookie)
           }
         }
