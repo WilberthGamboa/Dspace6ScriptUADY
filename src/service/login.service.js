@@ -1,11 +1,12 @@
 import colors from 'colors'; // Import colors package
 import axios from 'axios';
+import 'dotenv/config';
 export class LoginService {
-    constructor() {
-         this.url = 'http://148.209.67.83:8080/rest/login';
+    constructor() { 
+         this.url = `${process.env.URLSERVIDOR}/rest/login`;
          this.data = {
-            email: 'dspace@localhost',
-            password: 'dspace'
+            email: process.env.DSPACE_EMAIL,
+            password: process.env.DSPACE_PASSWORD
         };
     }
 
@@ -15,10 +16,12 @@ export class LoginService {
             console.log(colors.yellow(`Inicando login en ${this.url}`))
             const response = await axios.post(this.url, `email=${this.data.email}&password=${this.data.password}`);
             //console.log('Respuesta del servidor:', response.data);
-            console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
+                 console.log(colors.yellow('Cookies:', response.headers['set-cookie'])); // JSESSIONID cookie
             return response.headers['set-cookie'];
           } catch (error) {
-           // console.error(colors.red('Error en la solicitud:', error));
+            console.log(colors.red('No se pudo iniciar sesión en el servidor:'))
+            console.log(colors.red(error.cause))
+            process.exit(1)
           }
     }
 
