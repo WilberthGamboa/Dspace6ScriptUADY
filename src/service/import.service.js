@@ -22,7 +22,7 @@ export class ImportService {
     };
     
  try {
-  
+//console.log(idCollection)
   const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
   //await delay(10000);
   console.log(response.status)
@@ -165,12 +165,17 @@ export class ImportService {
   
   
   importExcel = async (sesionCookie) => {
-    
+      const test = this.uploadItems
      const excelToJson = await this.excelToJson(); 
+     
+    excelToJson.forEach(async iterator => {
+      await test(iterator.metadata,iterator.idCollection,sesionCookie)
+    });
     for (const iterator of excelToJson) {
-      console.log(iterator)
-      await this.uploadItems(iterator.metadata,iterator.idCollection,sesionCookie)
+     
+      
     }
+   
   }
 
 }
