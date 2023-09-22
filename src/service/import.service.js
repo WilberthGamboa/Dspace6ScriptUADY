@@ -2,7 +2,6 @@ import colors from 'colors'; // Import colors package
 import axios from 'axios';
 import exceljs from 'exceljs';
 import { excelCategory } from '../models/excelCategory.model.js';
-import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
 const { Workbook } = exceljs;
 import 'dotenv/config';
@@ -26,8 +25,10 @@ export class ImportService {
   const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
   //await delay(10000);
   console.log(response.status)
+ 
  } catch (error) {
-  //console.log(error)
+  
+  console.log(error)
  }
 
   }
@@ -150,31 +151,31 @@ export class ImportService {
       }
 
     });
-    console.log(cantidad)
-    // Obtener el tiempo de finalización
-   // const tiempoFin = process.hrtime(tiempoInicio);
-
-    // Calcular la duración en segundos
-    //const duracionEnNanosegundos = tiempoFin[0] * 1e9 + tiempoFin[1];
-    //const duracionEnSegundos = duracionEnNanosegundos / 1e9;
-    //console.log(colors.green('Finalizado en: ' + duracionEnSegundos + ' segundos'))
-    console.log(excelToJson.length)
+  
+   // console.log(excelToJson.length)
     return excelToJson;
   }
 
   
   
   importExcel = async (sesionCookie) => {
-      const test = this.uploadItems
-     const excelToJson = await this.excelToJson(); 
-     
-    excelToJson.forEach(async iterator => {
-      await test(iterator.metadata,iterator.idCollection,sesionCookie)
-    });
+    const cantidadItems = excelToJson.length;
+    const itemsSubidos = 0;
+
+    const excelToJson = await this.excelToJson(); 
+    console.log(excelToJson)
     for (const iterator of excelToJson) {
-     
-      
+        const {idCollection,...metadata} = iterator;
+        
+         await this.uploadItems(metadata,idCollection,sesionCookie);
+         /*
+        if (status===200) {
+          itemsSubidos++;
+          
+        }*/
     }
+
+   // console.log(colors.yellow(`Se subieron ${itemsSubidos} items de ${cantidadItems} `));
    
   }
 

@@ -13,7 +13,7 @@ async function main() {
     const sesionCookie = await loginController.loginController();
         
         const importController = new ImportController();
-     await importController.importController(sesionCookie); 
+          await importController.importController(sesionCookie); 
         //
         const deleteService = new DeleteService();
       //
@@ -23,8 +23,7 @@ async function main() {
  
  } catch (error) {
     
- }
-    
+ }    
 }
 
-main();
+await main();
