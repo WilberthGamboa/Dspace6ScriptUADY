@@ -2,6 +2,7 @@ import colors from 'colors'; // Import colors package
 import axios from 'axios';
 import exceljs from 'exceljs';
 import { excelCategory } from '../models/excelCategory.model.js';
+import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
 const { Workbook } = exceljs;
 import 'dotenv/config';
@@ -24,11 +25,9 @@ export class ImportService {
 //console.log(idCollection)
   const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
   //await delay(10000);
-  console.log(response.status)
- 
+  //console.log(response.status)
  } catch (error) {
-  
-  console.log(error)
+  //console.log(error)
  }
 
   }
@@ -159,23 +158,12 @@ export class ImportService {
   
   
   importExcel = async (sesionCookie) => {
-    const cantidadItems = excelToJson.length;
-    const itemsSubidos = 0;
 
     const excelToJson = await this.excelToJson(); 
-    console.log(excelToJson)
     for (const iterator of excelToJson) {
         const {idCollection,...metadata} = iterator;
-        
-         await this.uploadItems(metadata,idCollection,sesionCookie);
-         /*
-        if (status===200) {
-          itemsSubidos++;
-          
-        }*/
+     await this.uploadItems(metadata,idCollection,sesionCookie)
     }
-
-   // console.log(colors.yellow(`Se subieron ${itemsSubidos} items de ${cantidadItems} `));
    
   }
 
