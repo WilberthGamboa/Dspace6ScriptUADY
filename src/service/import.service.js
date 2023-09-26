@@ -14,38 +14,40 @@ export class ImportService {
   }
   //
    uploadItems = async(metadata, idCollection, sessionid) => {
+  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-    
+  //let status =0;
  try {
-  
+//console.log(idCollection)
   const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-  //console.log(response.status)
+  //await delay(10000);
+  //console.log(response);
+//  status =  response.status;
  } catch (error) {
-  //console.log(error)
+  console.log(error.message)
+
  }
 
-  }
-  excelToDspace = async (sesionCookie) => {
+ //return status;
 
+  }
+  excelToJson = async () => {
+    let cantidad = 0; 
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile(this.filePath);
     const worksheet = excel.getWorksheet(this.tableName)
-    //Se llama al funcion para el idsession
+    const excelToJson = [];
+  
+    console.log(colors.yellow('Inicando subida información'));
   
 
-
-    const uploadItems = this.uploadItems;
-
-    console.log(colors.yellow('Inicando subida información'));
-    //const tiempoInicio = process.hrtime();
-
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
-    worksheet.eachRow({ includeEmpty: false },  async function (row, rowNumber) {
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
       // Obtener los nombre
 
 
@@ -58,7 +60,8 @@ export class ImportService {
         let objetoConJSON = {
           metadata: [
 
-          ]
+          ],
+          idCollection:undefined
         };
 
 
@@ -126,38 +129,62 @@ export class ImportService {
             //  console.log(estadoExcel === nombreExcel)
             if (estadoExcel === nombreExcel) {
               const { categorias } = element;
-              categorias.forEach(element => {
-                //console.log(element.itemExcelName+ '---'+ coleccionExcel)
+              for (const element of categorias) {
                 if (element.itemExcelName === coleccionExcel) {
                   //console.log(idCollection)
                   idCollection = element.idDspace;
                 }
-              });
+                
+              }
+             
 
             }
 
           }
-          if (objetoConJSON.metadata.length!=0) {
-            uploadItems(objetoConJSON,idCollection,sesionCookie)
+          if (idCollection!=undefined) {
+            objetoConJSON.idCollection=idCollection;
+            excelToJson.push(objetoConJSON);
+            idCollection=undefined;
           }
         }
 
 
-        
+    
 
       }
 
     });
-    // Obtener el tiempo de finalización
-   // const tiempoFin = process.hrtime(tiempoInicio);
-
-    // Calcular la duración en segundos
-    //const duracionEnNanosegundos = tiempoFin[0] * 1e9 + tiempoFin[1];
-    //const duracionEnSegundos = duracionEnNanosegundos / 1e9;
-    //console.log(colors.green('Finalizado en: ' + duracionEnSegundos + ' segundos'))
-    //  return objetoConJSON;
+  
+   // console.log(excelToJson.length)
+    return excelToJson;
   }
 
+  
+  
+  importExcel = async (sesionCookie) => {
+  
+    const excelToJson = await this.excelToJson(); 
+    const totalJson = excelToJson.length;
+   
+   // const promises = [];
 
+for (const iterator of excelToJson) {
+  const { idCollection, ...metadata } = iterator;
+  await  this.uploadItems(metadata, idCollection, sesionCookie);
+ // promises.push(promise);
+}
+
+//const results = await Promise.all(promises);
+/*
+let itemsSubidos = 0;
+
+for (const status of results) {
+  if (status === 200) {
+    itemsSubidos++;
+  }
+}
+*/
+   console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
+  }
 
 }
