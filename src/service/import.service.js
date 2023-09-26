@@ -20,15 +20,19 @@ export class ImportService {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-    
+  //let status =0;
  try {
 //console.log(idCollection)
   const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
   //await delay(10000);
-  //console.log(response.status)
+  //console.log(response);
+//  status =  response.status;
  } catch (error) {
-  //console.log(error)
+  console.log(error.message)
+
  }
+
+ //return status;
 
   }
   excelToJson = async () => {
@@ -158,13 +162,29 @@ export class ImportService {
   
   
   importExcel = async (sesionCookie) => {
-
+  
     const excelToJson = await this.excelToJson(); 
-    for (const iterator of excelToJson) {
-        const {idCollection,...metadata} = iterator;
-     await this.uploadItems(metadata,idCollection,sesionCookie)
-    }
+    const totalJson = excelToJson.length;
    
+   // const promises = [];
+
+for (const iterator of excelToJson) {
+  const { idCollection, ...metadata } = iterator;
+  await  this.uploadItems(metadata, idCollection, sesionCookie);
+ // promises.push(promise);
+}
+
+//const results = await Promise.all(promises);
+/*
+let itemsSubidos = 0;
+
+for (const status of results) {
+  if (status === 200) {
+    itemsSubidos++;
+  }
+}
+*/
+   console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
   }
 
 }
