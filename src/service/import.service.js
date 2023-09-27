@@ -182,11 +182,28 @@ for (const iterator of excelToJson) {
 
  if (metadata.pathCarpeta!=undefined) {
   console.log(metadata.pathCarpeta)
-  const carpeta = path.join(process.cwd(), 'img',metadata.pathCarpeta,'FOTOGRAFIAS');
+  const carpeta = path.join(process.cwd(),'img',metadata.pathCarpeta,'FOTOGRAFIAS');
   console.log(carpeta)
   try {
     const archivos = await fs.readdir(carpeta);
     console.log(archivos)
+    for (const archivo of archivos) {
+      const rutaCompleta = path.join(carpeta, archivo);
+      try {
+        const contenido = await fs.readFile(rutaCompleta);
+        console.log(`Contenido de ${archivo}:`);
+        // Mandar solicitud
+        const x = sessionid[0]
+    const headers = {
+      'Content-Type': 'application/json',
+      'Cookie': x
+    };
+    const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+        console.log(contenido);
+      } catch (error) {
+        console.error(`Error al leer el archivo ${archivo}:`, error);
+      }
+    }
   } catch (error) {
     console.log(error)
   }

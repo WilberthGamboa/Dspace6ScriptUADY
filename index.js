@@ -18,8 +18,8 @@ async function main() {
 
 
     const loginController = new LoginController();
-    const sesionCookie = await loginController.loginController();
-        
+    //const sesionCookie = await loginController.loginController();
+     const sesionCookie    = '';
         const importController = new ImportController();
       await importController.importController(sesionCookie); 
         //
