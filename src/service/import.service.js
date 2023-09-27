@@ -1,6 +1,8 @@
 import colors from 'colors'; // Import colors package
 import axios from 'axios';
 import exceljs from 'exceljs';
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import { excelCategory } from '../models/excelCategory.model.js';
 import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
@@ -113,6 +115,9 @@ export class ImportService {
               }
             }
           }
+          if (worksheet.getCell(1, collnumber).value === 'Imágenes Carpeta') {
+           objetoConJSON.pathCarpeta =  cell.value;
+          }
           // Guardamos la categoria correspondiente a esta fila
           if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
             coleccionExcel = worksheet.getCell(2, collnumber).value;
@@ -169,9 +174,26 @@ export class ImportService {
    // const promises = [];
 
 for (const iterator of excelToJson) {
+  const arregloImagenes = [];
   const { idCollection, ...metadata } = iterator;
-  await  this.uploadItems(metadata, idCollection, sesionCookie);
+  //await  this.uploadItems(metadata, idCollection, sesionCookie);
  // promises.push(promise);
+
+
+ if (metadata.pathCarpeta!=undefined) {
+  console.log(metadata.pathCarpeta)
+  const carpeta = path.join(process.cwd(), 'img',metadata.pathCarpeta,'FOTOGRAFIAS');
+  console.log(carpeta)
+  try {
+    const archivos = await fs.readdir(carpeta);
+    console.log(archivos)
+  } catch (error) {
+    console.log(error)
+  }
+
+  
+ }
+
 }
 
 //const results = await Promise.all(promises);
