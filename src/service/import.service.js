@@ -195,22 +195,22 @@ export class ImportService {
               console.log(`Contenido de ${archivo}:`);
 
               const formData = new FormData();
-
+              const blob = new Blob([Buffer.from(contenido)], { type: 'image/jpeg' }); 
               // Agregar el buffer al formulario multipart
-              formData.append('file', contenido.buffer, {
-                filename: contenido,
+              formData.append('file', blob, {
+                filename: 'xd',
               });
           
               // Mandar solicitud
-              const x = sessionid[0]
+              const x = sesionCookie[0]
               const headers = {
                 
                 'Content-Type': 'application/json',
                 'Cookie': x,
                 ...formData.getHeaders()
               };
-               const response = await axios.post(`${this.serverURL}${data}/bitstreams`, metadata, { headers });
-              console.log(contenido);
+               const response = await axios.post(`${this.serverURL}${data}/bitstreams`,{ headers });
+              console.log(response);
             } catch (error) {
               console.error(`Error al leer el archivo ${archivo}:`, error);
             }
