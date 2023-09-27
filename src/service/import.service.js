@@ -15,38 +15,36 @@ export class ImportService {
     this.serverURL = process.env.URLSERVIDOR;
   }
   //
-   uploadItems = async(metadata, idCollection, sessionid) => {
-  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  uploadItems = async (metadata, idCollection, sessionid) => {
+    // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-  //let status =0;
- try {
-//console.log(idCollection)
-  const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-  //await delay(10000);
-  //console.log(response);
-//  status =  response.status;
- } catch (error) {
-  console.log(error.message)
+   
+    try {
+      //console.log(idCollection)
+    const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+    return response.data.link;
+    //console.log(response.data.link)
+    } catch (error) {
+      console.log(error.message)
 
- }
+    }
 
- //return status;
 
   }
   excelToJson = async () => {
-    let cantidad = 0; 
+    let cantidad = 0;
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile(this.filePath);
     const worksheet = excel.getWorksheet(this.tableName)
     const excelToJson = [];
-  
+
     console.log(colors.yellow('Inicando subida información'));
-  
+
 
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
     worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
@@ -63,7 +61,7 @@ export class ImportService {
           metadata: [
 
           ],
-          idCollection:undefined
+          idCollection: undefined
         };
 
 
@@ -116,7 +114,7 @@ export class ImportService {
             }
           }
           if (worksheet.getCell(1, collnumber).value === 'Imágenes Carpeta') {
-           objetoConJSON.pathCarpeta =  cell.value;
+            objetoConJSON.pathCarpeta = cell.value;
           }
           // Guardamos la categoria correspondiente a esta fila
           if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
@@ -139,91 +137,104 @@ export class ImportService {
                   //console.log(idCollection)
                   idCollection = element.idDspace;
                 }
-                
+
               }
-             
+
 
             }
 
           }
-          if (idCollection!=undefined) {
-            objetoConJSON.idCollection=idCollection;
+          if (idCollection != undefined) {
+            objetoConJSON.idCollection = idCollection;
             excelToJson.push(objetoConJSON);
-            idCollection=undefined;
+            idCollection = undefined;
           }
         }
 
 
-    
+
 
       }
 
     });
-  
-   // console.log(excelToJson.length)
+
+    // console.log(excelToJson.length)
     return excelToJson;
   }
 
-  
-  
+
+
   importExcel = async (sesionCookie) => {
-  
-    const excelToJson = await this.excelToJson(); 
+
+    const excelToJson = await this.excelToJson();
     const totalJson = excelToJson.length;
-   
-   // const promises = [];
 
-for (const iterator of excelToJson) {
-  const arregloImagenes = [];
-  const { idCollection, ...metadata } = iterator;
-  //await  this.uploadItems(metadata, idCollection, sesionCookie);
- // promises.push(promise);
+    // const promises = [];
+
+    for (const iterator of excelToJson) {
+      const arregloImagenes = [];
+      const { idCollection, ...metadata } = iterator;
+    const data =  await this.uploadItems(metadata, idCollection, sesionCookie);
+    console.log(data)
+      //const data = await response; // Accedes a los datos directamente aquíe.log(data);
+      //console.log();
+      
+      // promises.push(promise);
+
+      if (metadata.pathCarpeta != undefined) {
+        console.log(metadata.pathCarpeta)
+        const carpeta = path.join(process.cwd(), 'img', metadata.pathCarpeta, 'FOTOGRAFIAS');
+        console.log(carpeta)
+        try {
+          const archivos = await fs.readdir(carpeta);
+          console.log(archivos)
+          for (const archivo of archivos) {
+            const rutaCompleta = path.join(carpeta, archivo);
+            try {
+              const contenido = await fs.readFile(rutaCompleta);
+              console.log(`Contenido de ${archivo}:`);
+
+              const formData = new FormData();
+
+              // Agregar el buffer al formulario multipart
+              formData.append('file', contenido.buffer, {
+                filename: contenido,
+              });
+          
+              // Mandar solicitud
+              const x = sessionid[0]
+              const headers = {
+                
+                'Content-Type': 'application/json',
+                'Cookie': x,
+                ...formData.getHeaders()
+              };
+               const response = await axios.post(`${this.serverURL}${data}/bitstreams`, metadata, { headers });
+              console.log(contenido);
+            } catch (error) {
+              console.error(`Error al leer el archivo ${archivo}:`, error);
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
 
 
- if (metadata.pathCarpeta!=undefined) {
-  console.log(metadata.pathCarpeta)
-  const carpeta = path.join(process.cwd(),'img',metadata.pathCarpeta,'FOTOGRAFIAS');
-  console.log(carpeta)
-  try {
-    const archivos = await fs.readdir(carpeta);
-    console.log(archivos)
-    for (const archivo of archivos) {
-      const rutaCompleta = path.join(carpeta, archivo);
-      try {
-        const contenido = await fs.readFile(rutaCompleta);
-        console.log(`Contenido de ${archivo}:`);
-        // Mandar solicitud
-        const x = sessionid[0]
-    const headers = {
-      'Content-Type': 'application/json',
-      'Cookie': x
-    };
-    const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-        console.log(contenido);
-      } catch (error) {
-        console.error(`Error al leer el archivo ${archivo}:`, error);
+      }
+
+    }
+
+    //const results = await Promise.all(promises);
+    /*
+    let itemsSubidos = 0;
+    
+    for (const status of results) {
+      if (status === 200) {
+        itemsSubidos++;
       }
     }
-  } catch (error) {
-    console.log(error)
-  }
-
-  
- }
-
-}
-
-//const results = await Promise.all(promises);
-/*
-let itemsSubidos = 0;
-
-for (const status of results) {
-  if (status === 200) {
-    itemsSubidos++;
-  }
-}
-*/
-   console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
+    */
+    console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
   }
 
 }

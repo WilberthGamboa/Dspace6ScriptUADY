@@ -42,7 +42,7 @@ export class DeleteService {
     }
     async getItems(cookieses){
       try {
-        const response = await axios.get(`${this.serverURL}/rest/items/?limit=100`, {
+        const response = await axios.get(`${this.serverURL}/rest/items/?limit=300`, {
           headers: {
             Cookie: cookieses,
           },
