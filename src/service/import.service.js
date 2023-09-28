@@ -1,8 +1,9 @@
 import colors from 'colors'; // Import colors package
 import axios from 'axios';
 import exceljs from 'exceljs';
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import { excelCategory } from '../models/excelCategory.model.js';
-import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
 const { Workbook } = exceljs;
 import 'dotenv/config';
@@ -13,38 +14,39 @@ export class ImportService {
     this.serverURL = process.env.URLSERVIDOR;
   }
   //
-   uploadItems = async(metadata, idCollection, sessionid) => {
-  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  uploadItems = async (ejemplo, idCollection, sessionid) => {
+   
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-  //let status =0;
- try {
-//console.log(idCollection)
-  const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-  //await delay(10000);
-  //console.log(response);
-//  status =  response.status;
- } catch (error) {
-  console.log(error.message)
 
- }
+    try {
+      //console.log(idCollection)
+      const { pathCarpeta, ...metadata } = ejemplo;
+      //console.log(pathCarpeta)
+      const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+      //console.log(response.data.link)
+      return response;
+      //console.log(response.data.link)
+    } catch (error) {
+      console.log(error.message)
 
- //return status;
+    }
+
 
   }
   excelToJson = async () => {
-    let cantidad = 0; 
+    let cantidad = 0;
     // Se instancia el excel, se obtiene de que archivo y tabla se sacará la información
     const workbook = new Workbook();
     const excel = await workbook.xlsx.readFile(this.filePath);
     const worksheet = excel.getWorksheet(this.tableName)
     const excelToJson = [];
-  
+
     console.log(colors.yellow('Inicando subida información'));
-  
+
 
     //Se hace un bucle que recorra todas las lineas de nuestro documento (por filas)
     worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
@@ -61,7 +63,7 @@ export class ImportService {
           metadata: [
 
           ],
-          idCollection:undefined
+          idCollection: undefined
         };
 
 
@@ -113,6 +115,9 @@ export class ImportService {
               }
             }
           }
+          if (worksheet.getCell(1, collnumber).value === 'Imágenes Carpeta') {
+            objetoConJSON.pathCarpeta = cell.value;
+          }
           // Guardamos la categoria correspondiente a esta fila
           if (worksheet.getCell(1, collnumber).value === 'Categoria actual') {
             coleccionExcel = worksheet.getCell(2, collnumber).value;
@@ -134,57 +139,93 @@ export class ImportService {
                   //console.log(idCollection)
                   idCollection = element.idDspace;
                 }
-                
+
               }
-             
+
 
             }
 
           }
-          if (idCollection!=undefined) {
-            objetoConJSON.idCollection=idCollection;
+          if (idCollection != undefined) {
+            objetoConJSON.idCollection = idCollection;
             excelToJson.push(objetoConJSON);
-            idCollection=undefined;
+            idCollection = undefined;
           }
         }
 
 
-    
+
 
       }
 
     });
-  
-   // console.log(excelToJson.length)
+
+    // console.log(excelToJson.length)
     return excelToJson;
   }
 
-  
-  
+
+
   importExcel = async (sesionCookie) => {
-  
-    const excelToJson = await this.excelToJson(); 
+    const excelToJson = await this.excelToJson();
     const totalJson = excelToJson.length;
+
+    
+    let itemsSubidos = 0; // Initialize the itemsSubidos variable here
+
+    for (const iterator of excelToJson) {
    
-   // const promises = [];
+      const { idCollection,pathCarpeta, ...metadata } = iterator;
 
-for (const iterator of excelToJson) {
-  const { idCollection, ...metadata } = iterator;
-  await  this.uploadItems(metadata, idCollection, sesionCookie);
- // promises.push(promise);
-}
+      try {
+        // Upload items and store the response in the data variable
+        const respuesta = await this.uploadItems(metadata, idCollection, sesionCookie);
+        if (respuesta.status === 200) {
+          if (pathCarpeta != undefined) {
+           await  this.imageUpload(pathCarpeta,respuesta.data.link,sesionCookie)
+          }
+        }
+        itemsSubidos++;
+      } catch (error) {
+        console.error('Error uploading items:', error);
+      }
+    }
 
-//const results = await Promise.all(promises);
-/*
-let itemsSubidos = 0;
-
-for (const status of results) {
-  if (status === 200) {
-    itemsSubidos++;
+    console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`));
   }
-}
-*/
-   console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
+
+  imageUpload = async (pathCarpeta,itemIdUrl,sessionCookie) => {
+
+    const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
+   
+    try {
+      const archivos = await fs.readdir(carpeta);
+     
+      for (const archivo of archivos) {
+        const rutaCompleta = path.join(carpeta, archivo);
+        try {
+          const bitstream = await fs.readFile(rutaCompleta);
+        
+
+          // Mandar solicitud
+          const x = sessionCookie[0]
+          const params = {
+            method: 'POST',
+
+            headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
+            encoding: null,
+            body: bitstream
+          }
+
+          const res = await fetch(`${this.serverURL}${itemIdUrl}/bitstreams?name=${archivo}`, params);
+        } catch (error) {
+          console.error(`Error al leer el archivo ${archivo}:`, error);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
 }
