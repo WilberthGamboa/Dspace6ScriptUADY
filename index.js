@@ -21,11 +21,11 @@ async function main() {
     const sesionCookie = await loginController.loginController();
     // const sesionCookie    = '';
         const importController = new ImportController();
-      await importController.importController(sesionCookie); 
+     await importController.importController(sesionCookie); 
         //
         const deleteService = new DeleteService();
       // 
-      //await deleteService.deleteItem(sesionCookie);
+     // await deleteService.deleteItem(sesionCookie);
    const fin = process.hrtime(inicio);
    const tiempoDeEjecucionEnNanosegundos = fin[0] * 1e9 + fin[1];
    const tiempoDeEjecucionEnSegundos = tiempoDeEjecucionEnNanosegundos / 1e9;

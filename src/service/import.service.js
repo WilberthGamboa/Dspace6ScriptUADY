@@ -29,42 +29,7 @@ export class ImportService {
       //console.log(pathCarpeta)
     const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
     //console.log(response.data.link)
-    if (response.status===200) {
-      if (pathCarpeta != undefined) {
-        console.log(metadata.pathCarpeta)
-        const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
-        console.log(carpeta)
-        try {
-          const archivos = await fs.readdir(carpeta);
-          console.log(archivos)
-          for (const archivo of archivos) {
-            const rutaCompleta = path.join(carpeta, archivo);
-            try {
-              const mimeType = 'image/jpeg'; 
-              const bitstream = await fs.readFile(rutaCompleta);
-              console.log(`Contenido de ${archivo}:`);
-              console.log(bitstream);
-
-              // Mandar solicitud
-              const x = sessionid[0]
-              const params =  {
-                method: 'POST',
-     
-                headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
-                encoding: null,
-                body: bitstream
-            }
-    
-            const res = await fetch(`http://148.209.67.83:8080${response.data.link}/bitstreams?name=${archivo}`,params);
-            } catch (error) {
-              console.error(`Error al leer el archivo ${archivo}:`, error);
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }
+      return response;
     //console.log(response.data.link)
     } catch (error) {
       console.log(error.message)
@@ -215,9 +180,44 @@ export class ImportService {
   
       try {
         // Upload items and store the response in the data variable
-        await this.uploadItems(metadata, idCollection, sesionCookie);
-
-  
+        const {pathCarpeta,...test} = metadata 
+        const respuesta = await  this.uploadItems(test, idCollection, sesionCookie);
+        if (respuesta.status===200) {
+          if (pathCarpeta != undefined) {
+            console.log(metadata.pathCarpeta)
+            const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
+            console.log(carpeta)
+            try {
+              const archivos = await fs.readdir(carpeta);
+              console.log(archivos)
+              for (const archivo of archivos) {
+                const rutaCompleta = path.join(carpeta, archivo);
+                try {
+                  const mimeType = 'image/jpeg'; 
+                  const bitstream = await fs.readFile(rutaCompleta);
+                  console.log(`Contenido de ${archivo}:`);
+                  console.log(bitstream);
+    
+                  // Mandar solicitud
+                  const x = sesionCookie[0]
+                  const params =  {
+                    method: 'POST',
+         
+                    headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
+                    encoding: null,
+                    body: bitstream
+                }
+        
+                const res = await fetch(`http://148.209.67.83:8080${respuesta.data.link}/bitstreams?name=${archivo}`,params);
+                } catch (error) {
+                  console.error(`Error al leer el archivo ${archivo}:`, error);
+                }
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        }
       
       } catch (error) {
         console.error('Error uploading items:', error);
