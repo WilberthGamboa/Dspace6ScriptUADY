@@ -31,10 +31,8 @@ async function main() {
    const tiempoDeEjecucionEnSegundos = tiempoDeEjecucionEnNanosegundos / 1e9;
 
    console.log(colors.yellow(`El tiempo de ejecución fue de ${tiempoDeEjecucionEnSegundos} segundos.`));
-
- 
  } catch (error) {
-    
+console.log(error)    
  }    
 }
 

@@ -15,7 +15,7 @@ export class ImportService {
     this.serverURL = process.env.URLSERVIDOR;
   }
   //
-  uploadItems = async (metadata, idCollection, sessionid) => {
+  uploadItems = async (ejemplo, idCollection, sessionid) => {
     // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const x = sessionid[0]
     const headers = {
@@ -25,8 +25,46 @@ export class ImportService {
    
     try {
       //console.log(idCollection)
+      const {pathCarpeta,...metadata} = ejemplo;
+      //console.log(pathCarpeta)
     const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-    return response.data.link;
+    //console.log(response.data.link)
+    if (response.status===200) {
+      if (pathCarpeta != undefined) {
+        console.log(metadata.pathCarpeta)
+        const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
+        console.log(carpeta)
+        try {
+          const archivos = await fs.readdir(carpeta);
+          console.log(archivos)
+          for (const archivo of archivos) {
+            const rutaCompleta = path.join(carpeta, archivo);
+            try {
+              const mimeType = 'image/jpeg'; 
+              const bitstream = await fs.readFile(rutaCompleta);
+              console.log(`Contenido de ${archivo}:`);
+              console.log(bitstream);
+
+              // Mandar solicitud
+              const x = sessionid[0]
+              const params =  {
+                method: 'POST',
+     
+                headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
+                encoding: null,
+                body: bitstream
+            }
+    
+            const res = await fetch(`http://148.209.67.83:8080${response.data.link}/bitstreams?name=${archivo}`,params);
+            } catch (error) {
+              console.error(`Error al leer el archivo ${archivo}:`, error);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
     //console.log(response.data.link)
     } catch (error) {
       console.log(error.message)
@@ -165,76 +203,28 @@ export class ImportService {
 
 
   importExcel = async (sesionCookie) => {
-
     const excelToJson = await this.excelToJson();
     const totalJson = excelToJson.length;
-
+  
     // const promises = [];
-
+    let itemsSubidos = 0; // Initialize the itemsSubidos variable here
+  
     for (const iterator of excelToJson) {
       const arregloImagenes = [];
       const { idCollection, ...metadata } = iterator;
-    const data =  await this.uploadItems(metadata, idCollection, sesionCookie);
-    console.log(data)
-      //const data = await response; // Accedes a los datos directamente aquíe.log(data);
-      //console.log();
+  
+      try {
+        // Upload items and store the response in the data variable
+        await this.uploadItems(metadata, idCollection, sesionCookie);
+
+  
       
-      // promises.push(promise);
-
-      if (metadata.pathCarpeta != undefined) {
-        console.log(metadata.pathCarpeta)
-        const carpeta = path.join(process.cwd(), 'img', metadata.pathCarpeta, 'FOTOGRAFIAS');
-        console.log(carpeta)
-        try {
-          const archivos = await fs.readdir(carpeta);
-          console.log(archivos)
-          for (const archivo of archivos) {
-            const rutaCompleta = path.join(carpeta, archivo);
-            try {
-              const contenido = await fs.readFile(rutaCompleta);
-              console.log(`Contenido de ${archivo}:`);
-
-              const formData = new FormData();
-              const blob = new Blob([Buffer.from(contenido)], { type: 'image/jpeg' }); 
-              // Agregar el buffer al formulario multipart
-              formData.append('file', blob, {
-                filename: 'xd',
-              });
-          
-              // Mandar solicitud
-              const x = sesionCookie[0]
-              const headers = {
-                
-                'Content-Type': 'application/json',
-                'Cookie': x,
-                ...formData.getHeaders()
-              };
-               const response = await axios.post(`${this.serverURL}${data}/bitstreams`,{ headers });
-              console.log(response);
-            } catch (error) {
-              console.error(`Error al leer el archivo ${archivo}:`, error);
-            }
-          }
-        } catch (error) {
-          console.log(error)
-        }
-
-
-      }
-
-    }
-
-    //const results = await Promise.all(promises);
-    /*
-    let itemsSubidos = 0;
-    
-    for (const status of results) {
-      if (status === 200) {
-        itemsSubidos++;
+      } catch (error) {
+        console.error('Error uploading items:', error);
       }
     }
-    */
-    console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`))
+  
+    console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`));
   }
 
 }
