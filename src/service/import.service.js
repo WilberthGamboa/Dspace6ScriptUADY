@@ -4,7 +4,6 @@ import exceljs from 'exceljs';
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import { excelCategory } from '../models/excelCategory.model.js';
-import { LoginController } from '../controllers/login.controller.js';
 import { collectionId } from '../models/collection.model.js';
 const { Workbook } = exceljs;
 import 'dotenv/config';
@@ -16,21 +15,21 @@ export class ImportService {
   }
   //
   uploadItems = async (ejemplo, idCollection, sessionid) => {
-    // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+   
     const x = sessionid[0]
     const headers = {
       'Content-Type': 'application/json',
       'Cookie': x
     };
-   
+
     try {
       //console.log(idCollection)
-      const {pathCarpeta,...metadata} = ejemplo;
+      const { pathCarpeta, ...metadata } = ejemplo;
       //console.log(pathCarpeta)
-    const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
-    //console.log(response.data.link)
+      const response = await axios.post(`${this.serverURL}/rest/collections/${idCollection}/items`, metadata, { headers });
+      //console.log(response.data.link)
       return response;
-    //console.log(response.data.link)
+      //console.log(response.data.link)
     } catch (error) {
       console.log(error.message)
 
@@ -170,61 +169,63 @@ export class ImportService {
   importExcel = async (sesionCookie) => {
     const excelToJson = await this.excelToJson();
     const totalJson = excelToJson.length;
-  
-    // const promises = [];
+
+    
     let itemsSubidos = 0; // Initialize the itemsSubidos variable here
-  
+
     for (const iterator of excelToJson) {
-      const arregloImagenes = [];
-      const { idCollection, ...metadata } = iterator;
-  
+   
+      const { idCollection,pathCarpeta, ...metadata } = iterator;
+
       try {
         // Upload items and store the response in the data variable
-        const {pathCarpeta,...test} = metadata 
-        const respuesta = await  this.uploadItems(test, idCollection, sesionCookie);
-        if (respuesta.status===200) {
+        const respuesta = await this.uploadItems(metadata, idCollection, sesionCookie);
+        if (respuesta.status === 200) {
           if (pathCarpeta != undefined) {
-            console.log(metadata.pathCarpeta)
-            const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
-            console.log(carpeta)
-            try {
-              const archivos = await fs.readdir(carpeta);
-              console.log(archivos)
-              for (const archivo of archivos) {
-                const rutaCompleta = path.join(carpeta, archivo);
-                try {
-                  const mimeType = 'image/jpeg'; 
-                  const bitstream = await fs.readFile(rutaCompleta);
-                  console.log(`Contenido de ${archivo}:`);
-                  console.log(bitstream);
-    
-                  // Mandar solicitud
-                  const x = sesionCookie[0]
-                  const params =  {
-                    method: 'POST',
-         
-                    headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
-                    encoding: null,
-                    body: bitstream
-                }
-        
-                const res = await fetch(`http://148.209.67.83:8080${respuesta.data.link}/bitstreams?name=${archivo}`,params);
-                } catch (error) {
-                  console.error(`Error al leer el archivo ${archivo}:`, error);
-                }
-              }
-            } catch (error) {
-              console.log(error);
-            }
+           await  this.imageUpload(pathCarpeta,respuesta.data.link,sesionCookie)
           }
         }
-      
+        itemsSubidos++;
       } catch (error) {
         console.error('Error uploading items:', error);
       }
     }
-  
+
     console.log(colors.yellow(`Se subieron ${itemsSubidos} de ${totalJson}`));
+  }
+
+  imageUpload = async (pathCarpeta,itemIdUrl,sessionCookie) => {
+
+    const carpeta = path.join(process.cwd(), 'img', pathCarpeta, 'FOTOGRAFIAS');
+   
+    try {
+      const archivos = await fs.readdir(carpeta);
+     
+      for (const archivo of archivos) {
+        const rutaCompleta = path.join(carpeta, archivo);
+        try {
+          const bitstream = await fs.readFile(rutaCompleta);
+        
+
+          // Mandar solicitud
+          const x = sessionCookie[0]
+          const params = {
+            method: 'POST',
+
+            headers: { "Content-Type": "multipart/form-data", "accept": "application/json", 'Cookie': x },
+            encoding: null,
+            body: bitstream
+          }
+
+          const res = await fetch(`${this.serverURL}${itemIdUrl}/bitstreams?name=${archivo}`, params);
+        } catch (error) {
+          console.error(`Error al leer el archivo ${archivo}:`, error);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
 }
