@@ -5,7 +5,7 @@ Script desarrollador para la Facultad de Matemáticas UADY, para el proyecto de 
 ## Instalación
 Clonamos el repositorio
 ```bash
-git clone https://github.com/WilberthGamboa/Dspace6UploadScript
+git clone https://github.com/WilberthGamboa/Dspace6ScriptUADY
 ```
 Instalamos dependencias
 
