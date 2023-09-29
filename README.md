@@ -12,10 +12,19 @@ Instalamos dependencias
 ```bash
 npm i
 ```
-Ejecutar la aplicación
+
+Configuramos el .env
+
+Ejecutar la subida de items dado del excel 
 ``` bash
 npm run start
 ```
+Ejecuta la eliminación de los items (verificar .env)
+``` bash
+npm run delete
+```
+
+
 
 
 
