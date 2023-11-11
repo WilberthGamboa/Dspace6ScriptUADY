@@ -7,8 +7,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index",
-    "start": "node index",
-    "delete": "node index delete"
+    "xd": "node index",
+    "delete": "node index delete",
+    "start": "nodemon dist/index.js",
+    "build": "tsc",
+    "watch": "tsc -w"
   },
   "author": "WilberthGamboa",
   "license": "ISC",
@@ -20,6 +23,10 @@
     "exceljs": "^4.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/node": "^20.9.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
   }
 }
