@@ -39,6 +39,6 @@ export const excelCategory = {
     bienesMueblesElementosSignificativosRelevantes:{excel:'Bienes muebles y elementos significativos relevantes',dspace:`${prefixArq}Bienes`},// ✅
     observacionesBienesMueblesElementosSignificativosRelevantes:{excel:'Observaciones de bienes muebles y elementos significativos relevantes',dspace:`${prefixArq}ObservBienes`},// ✅
     observacionesGenerales:{excel:'Observaciones generales',dspace:`${prefixArq}ObservGenerales`},// ✅
-    mapsLatitud:{excel:'latitud',dspace:`${prefixArq}Latitud`},
-    mapsLongitud:{excel:'longitud',dspace:`${prefixArq}Longitud`}
+    mapsLatitud:{excel:'Latitud',dspace:`${prefixArq}Latitud`},
+    mapsLongitud:{excel:'Longitud',dspace:`${prefixArq}Longitud`}
 }
